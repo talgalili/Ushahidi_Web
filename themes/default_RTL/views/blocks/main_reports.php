@@ -1,5 +1,5 @@
 <?php blocks::open("reports");?>
-<?php blocks::title(Kohana::lang('ui_main.incidents_listed'));?>
+<?php blocks::title(Kohana::lang('ui_main.reports_listed'));?>
 <table class="table-list">
 	<thead>
 		<tr>
@@ -19,14 +19,14 @@
 		foreach ($incidents as $incident)
 		{
 			$incident_id = $incident->id;
-			$incident_title = text::limit_chars($incident->incident_title, 40, '...', True);
+			$incident_title = text::limit_chars(strip_tags($incident->incident_title), 40, '...', True);
 			$incident_date = $incident->incident_date;
 			$incident_date = date('M j Y', strtotime($incident->incident_date));
 			$incident_location = $incident->location->location_name;
 		?>
 		<tr>
-			<td><a href="<?php echo url::site() . 'reports/view/' . $incident_id; ?>"> <?php echo $incident_title ?></a></td>
-			<td><?php echo $incident_location ?></td>
+			<td><a href="<?php echo url::site() . 'reports/view/' . $incident_id; ?>"> <?php echo html::specialchars($incident_title) ?></a></td>
+			<td><?php echo html::specialchars($incident_location) ?></td>
 			<td><?php echo $incident_date; ?></td>
 		</tr>
 		<?php

@@ -25,7 +25,8 @@
 			</div>
 			<input type="hidden" id="alert_lat" name="alert_lat" value="<?php echo $form['alert_lat']; ?>">
 			<input type="hidden" id="alert_lon" name="alert_lon" value="<?php echo $form['alert_lon']; ?>">
-			<input type="hidden" id="alert_country" name="alert_country" value="<?php echo $form['alert_country'] ?>" />
+			<input type="hidden" id="alert_country" name="alert_country" value="<?php echo $form['alert_country']; ?>" />
+			<input type="hidden" id="alert_confirmed" name="alert_confirmed" value="<?php echo $form['alert_confirmed']; ?>" />
 			<div class="step-2-holder">
 				<div class="step-2">
 					<h2><?php echo Kohana::lang('ui_main.alerts_step2_send_alerts'); ?></h2>
@@ -66,7 +67,7 @@
 									? $selected_categories = $form['alert_category']
 									: array();
 									
-								echo category::tree($categories, $selected_categories, 'alert_category', 2, TRUE);
+								echo category::tree($categories, TRUE, $selected_categories, 'alert_category', 2, TRUE);
 							?>
 							</div>
 						</div>

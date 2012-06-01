@@ -3,7 +3,7 @@
 		<!-- start reports block -->
 		<div class="big-block">
 			<h1 class="heading">
-				<?php $timeframe_title = date('M d, Y', $oldest_timestamp).' through '.date('M d, Y', $latest_timestamp); ?>
+				<?php $timeframe_title = date('M d, Y', $oldest_timestamp).' '.Kohana::lang('ui_main.through').' '.date('M d, Y', $latest_timestamp); ?>
 				<?php echo Kohana::lang('ui_main.showing_reports_from'); ?> 
 				<span class="time-period"><?php echo $timeframe_title; ?></span> 
 				<a href="#" class="btn-change-time ic-time"><?php echo Kohana::lang('ui_main.change_date_range'); ?></a>
@@ -34,8 +34,8 @@
 					</li>
 				</ul>
 				
-				<p class="labeled-divider"><span>Or choose your own date range:</span></p>
-				<form>
+				<p class="labeled-divider"><span><?php echo Kohana::lang('ui_main.choose_date_range'); ?>:</span></p>
+				<?php echo form::open(NULL, array('method' => 'get')); ?>
 					<table>
 						<tr>
 							<td><strong>
@@ -50,7 +50,7 @@
 							</td>
 						</tr>
 					</table>              
-				</form>
+				<?php form::close(); ?>
 			</div>
 
 			<div style="overflow:auto;">
@@ -61,7 +61,7 @@
 				<!-- end #reports-box -->
 				
 				<div id="filters-box">
-					<h2>Filter Reports By</h2>
+					<h2><?php echo Kohana::lang('ui_main.filter_reports_by'); ?></h2>
 					<div id="accordion">
 						
 						<h3>
@@ -71,8 +71,14 @@
 						<div class="f-category-box">
 							<ul class="filter-list fl-categories" id="category-filter-list">
 								<li>
-									<a href="#">
-									<span class="item-swatch" style="background-color: #<?php echo Kohana::config('settings.default_map_all'); ?>">&nbsp;</span>
+									<a href="#"><?php
+									$all_cat_image = '&nbsp';
+									$all_cat_image = '';
+									if($default_map_all_icon != NULL) {
+										$all_cat_image = html::image(array('src'=>$default_map_all_icon));
+									}
+									?>
+									<span class="item-swatch" style="background-color: #<?php echo Kohana::config('settings.default_map_all'); ?>"><?php echo $all_cat_image ?></span>
 									<span class="item-title"><?php echo Kohana::lang('ui_main.all_categories'); ?></span>
 									<span class="item-count" id="all_report_count"><?php echo $report_stats->total_reports; ?></span>
 									</a>
@@ -196,7 +202,7 @@
 					<div id="filter-controls">
 						<p>
 							<a href="#" class="small-link-button reset" id="reset_all_filters"><?php echo Kohana::lang('ui_main.reset_all_filters'); ?></a> 
-							<a href="#" id="applyFilters" class="filter-button">Filter Reports</a>
+							<a href="#" id="applyFilters" class="filter-button"><?php echo Kohana::lang('ui_main.filter_reports'); ?></a>
 						</p>
 					</div>          
 				</div>
