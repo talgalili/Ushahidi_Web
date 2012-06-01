@@ -66,7 +66,7 @@
 		jQuery(window).load(function() {
 			// Map options
 			var options = {
-				units: "m",
+				units: "dd",
 				numZoomLevels: 18, 
 				controls:[],
 				theme: false,
@@ -74,7 +74,9 @@
 				'displayProjection': proj_4326,
 				eventListeners: {
 					"zoomend": incidentZoom
-				}
+				},
+				maxExtent: new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
+				maxResolution: 156543.0339
 			};
 			
 			// Now initialise the map
@@ -213,8 +215,8 @@
 					echo "wktFeature.color = '$geometry->color';\n";
 					echo "wktFeature.strokewidth = '$geometry->strokewidth';\n";
 					echo "vlayer.addFeatures(wktFeature);\n";
-					echo "var color = '$geometry->color';if (color) {updateFeature(wktFeature, color, '');};";
-					echo "var strokewidth = '$geometry->strokewidth';if (strokewidth) {updateFeature(wktFeature, '', strokewidth);};";
+					echo "var color = '$geometry->color';if (color) {updateFeature(wktFeature, color, '');};\n";
+					echo "var strokewidth = '$geometry->strokewidth';if (strokewidth) {updateFeature(wktFeature, '', strokewidth);};\n";
 				}
 			}
 			?>
@@ -244,7 +246,7 @@
 			});
 			
 			// Undo Action Removes Most Recent Marker
-			$('.btn_del_last').live('click', function () {
+			$('.btn_del_last').on('click', function () {
 				if (vlayer.features.length > 0) {
 					x = vlayer.features.length - 1;
 					vlayer.removeFeatures(vlayer.features[x]);
@@ -255,7 +257,7 @@
 			});
 			
 			// Delete Selected Features
-			$('.btn_del_sel').live('click', function () {
+			$('.btn_del_sel').on('click', function () {
 				for(var y=0; y < selectedFeatures.length; y++) {
 					vlayer.removeFeatures(selectedFeatures);
 				}
@@ -265,7 +267,7 @@
 			});
 			
 			// Clear Map
-			$('.btn_clear').live('click', function () {
+			$('.btn_clear').on('click', function () {
 				vlayer.removeFeatures(vlayer.features);
 				$('input[name="geometry[]"]').remove();
 				$("#latitude").val("");
@@ -281,7 +283,7 @@
 			});
 			
 			// GeoCode
-			$('.btn_find').live('click', function () {
+			$('.btn_find').on('click', function () {
 				geoCode();
 			});
 			$('#location_find').bind('keypress', function(e) {
@@ -323,25 +325,25 @@
 			
 			/* Form Actions */
 			// Action on Save Only
-			$('.btn_save').live('click', function () {
+			$('.btn_save').on('click', function () {
 				$("#save").attr("value", "dontclose");
 				$(this).parents("form").submit();
 				return false;
 			});
 			
-			$('.btn_save_close').live('click', function () {
+			$('.btn_save_close').on('click', function () {
 				$(this).parents("form").submit();
 				return false;
 			});
 
-			$('.btn_save_add_new').live('click', function () {
+			$('.btn_save_add_new').on('click', function () {
 				$("#save").attr("value", "addnew");
 				$(this).parents("form").submit();
 				return false;
 			});
 			
 			// Delete Action
-			$('.btn_delete').live('click', function () {
+			$('.btn_delete').on('click', function () {
 				var agree=confirm("<?php echo Kohana::lang('ui_admin.are_you_sure_you_want_to'); ?> <?php echo Kohana::lang('ui_admin.delete_action'); ?>?");
 				if (agree){
 					$('#reportMain').submit();
@@ -592,12 +594,51 @@
 				}
 				selectCtrl.activate();
 			});
+
+			// Detect Dropdown Select
+			$("#select_city").change(function() {
+				var lonlat = $(this).val().split(",");
+				if ( lonlat[0] && lonlat[1] )
+				{
+					// Clear the map first
+					vlayer.removeFeatures(vlayer.features);
+					$('input[name="geometry[]"]').remove();
+
+					point = new OpenLayers.Geometry.Point(lonlat[0], lonlat[1]);
+					OpenLayers.Projection.transform(point, proj_4326,proj_900913);
+
+					f = new OpenLayers.Feature.Vector(point);
+					vlayer.addFeatures(f);
+
+					// create a new lat/lon object
+					myPoint = new OpenLayers.LonLat(lonlat[0], lonlat[1]);
+					myPoint.transform(proj_4326, map.getProjectionObject());
+
+					// display the map centered on a latitude and longitude
+					map.setCenter(myPoint, <?php echo $default_zoom; ?>);
+
+					// Update form values (jQuery)
+					$("#location_name").attr("value", $('#select_city :selected').text());
+
+					$("#latitude").attr("value", lonlat[1]);
+					$("#longitude").attr("value", lonlat[0]);
+				}
+			});
+
 		});
-		
 		
 		function addFormField(div, field, hidden_id, field_type) {
 			var id = document.getElementById(hidden_id).value;
-			$("#" + div).append("<div class=\"row link-row second\" id=\"" + field + "_" + id + "\"><input type=\"" + field_type + "\" name=\"" + field + "[]\" class=\"" + field_type + " long\" /><a href=\"#\" class=\"add\" onClick=\"addFormField('" + div + "','" + field + "','" + hidden_id + "','" + field_type + "'); return false;\">add</a><a href=\"#\" class=\"rem\"  onClick='removeFormField(\"#" + field + "_" + id + "\"); return false;'>remove</a></div>");
+			
+			// HTML for the form field to be added
+			var formFieldHTML = "<div class=\"row link-row second\" id=\"" + field + "_" + id + "\">" +
+			    "<input type=\"" + field_type + "\" name=\"" + field + "[]\" class=\"" + field_type + " long2\" />" +
+			    "<a href=\"#\" class=\"add\" "+
+			    "    onClick=\"addFormField('" + div + "','" + field + "','" + hidden_id + "','" + field_type + "'); return false;\">"+
+			    "    add</a>" +
+			    "<a href=\"#\" class=\"rem\"  onClick='removeFormField(\"#" + field + "_" + id + "\"); return false;'>remove</a></div>";
+
+			$("#" + div).append(formFieldHTML);
 
 			$("#" + field + "_" + id).effect("highlight", {}, 800);
 
@@ -642,30 +683,33 @@
 						vlayer.removeFeatures(vlayer.features);
 						$('input[name="geometry[]"]').remove();
 						
-						point = new OpenLayers.Geometry.Point(data.message[1], data.message[0]);
+						point = new OpenLayers.Geometry.Point(data.longitude, data.latitude);
 						OpenLayers.Projection.transform(point, proj_4326,proj_900913);
 						
 						f = new OpenLayers.Feature.Vector(point);
 						vlayer.addFeatures(f);
 						
 						// create a new lat/lon object
-						myPoint = new OpenLayers.LonLat(data.message[1], data.message[0]);
+						myPoint = new OpenLayers.LonLat(data.longitude, data.latitude);
 						myPoint.transform(proj_4326, map.getProjectionObject());
 
 						// display the map centered on a latitude and longitude
 						map.setCenter(myPoint, <?php echo $default_zoom; ?>);
-						
-						// Looking up country name using reverse geocoding					
-						reverseGeocode(data.message[0], data.message[1]);
-						
+												
 						// Update form values
-						$("#latitude").attr("value", data.message[0]);
-						$("#longitude").attr("value", data.message[1]);
-						$("#location_name").attr("value", $("#location_find").val());
+						$("#country_name").val(data.country);
+						$("#latitude").val(data.latitide);
+						$("#longitude").val(data.longitude);
+						$("#location_name").val(data.location_name);
 					} else {
-						alert(address + " not found!\n\n***************************\nEnter more details like city, town, country\nor find a city or town close by and zoom in\nto find your precise location");
+						// Alert message to be displayed
+						var alertMessage = address + " not found!\n\n***************************\n" + 
+						    "Enter more details like city, town, country\nor find a city or town " +
+						    "close by and zoom in\nto find your precise location";
+
+						alert(alertMessage)
 					}
-					$('#find_loading').html('');
+					$('div#find_loading').html('');
 				}, "json");
 			return false;
 		}

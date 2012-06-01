@@ -40,26 +40,23 @@
 	 * 
 	 * @param String url-- download URL
 	 */
-	public function download_ushahidi($url) {
-		$snoopy = new Snoopy();
-		$snoopy->agent = Kohana::lang('libraries.upgrade_title');
-		$snoopy->read_timeout = 30;
-		$snoopy->gzip = false;
-		$snoopy->fetch($url);
+    public function download_ushahidi($url) {
+        $http_client = new HttpClient($url,30);
+        $results = $http_client->fetch_url();
 		$this->log[] = "Starting to download the latest ushahidi build...";
 		
-		if ( $snoopy->status == '200' ) 
+		if ( $results) 
 		{
 			$this->log[] = "Download of latest ushahidi went successful.";
 			$this->success = true;		  
-			return $snoopy->results;
+			return $results;
 		} 
 		
 		else 
 		{			
-			$this->errors[] = sprintf(Kohana::lang('libraries.upgrade_failed').": %d", $snoopy->status);	
+			$this->errors[] = sprintf(Kohana::lang('libraries.upgrade_failed').": %d", $http_client->get_error_msg());	
 			$this->success = false;
-			return $snoopy;
+			return $results;
 		}
 			
 	}
@@ -507,26 +504,31 @@
 	}
 
 	/**
-	 * Fetch latest ushahidi version from a remote instance then 
+	 * Fetch latest ushahidi version from a remote instance then
 	 * compare it with local instance version number.
 	 */
-	public function _fetch_core_release() 
+	public function _fetch_core_release()
 	{
 		// Current Version
 		$current = urlencode(Kohana::config('settings.ushahidi_version'));
 
 		// Extra Stats
-		$url = urlencode(preg_replace("/^https?:\/\/(.+)$/i","\\1", 
+		$url = urlencode(preg_replace("/^https?:\/\/(.+)$/i","\\1",
 					url::base()));
 		$ip_address = (isset($_SERVER['REMOTE_ADDR'])) ?
 			urlencode($_SERVER['REMOTE_ADDR']) : "";
 
 		$version_url = "http://version.ushahidi.com/2/?v=".$current.
-			"&u=".$url."&ip=".$ip_address;		
-		
+			"&u=".$url."&ip=".$ip_address;
+
 		preg_match('/({.*})/', file_get_contents($version_url), $matches);
-		$version_json_string = $matches[0];
-		
+
+		$version_json_string = false;
+		if(isset($matches[0]))
+		{
+			$version_json_string = $matches[0];
+		}
+
 		// If we didn't get anything back...
 		if ( ! $version_json_string )
 		{
@@ -534,10 +536,9 @@
 		}
 
 		$version_details = json_decode($version_json_string);
-		
 		return $version_details;
 	}
-	
+
 	/**
 	 * Log Messages To File
 	 */

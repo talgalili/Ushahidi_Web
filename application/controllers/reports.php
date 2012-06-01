@@ -14,6 +14,7 @@
  */
 
 class Reports_Controller extends Main_Controller {
+	
 	/**
 	 * Whether an admin console user is logged in
 	 * @var bool
@@ -23,12 +24,10 @@ class Reports_Controller extends Main_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-
 		$this->themes->validator_enabled = TRUE;
 
 		// Is the Admin Logged In?
 		$this->logged_in = Auth::instance()->logged_in();
-
 	}
 
 	/**
@@ -38,40 +37,53 @@ class Reports_Controller extends Main_Controller {
 	{
 		// Cacheable Controller
 		$this->is_cachable = TRUE;
-		
+
 		$this->template->header->this_page = 'reports';
 		$this->template->content = new View('reports');
 		$this->themes->js = new View('reports_js');
-		
+
+		$this->template->header->page_title .= Kohana::lang('ui_main.reports').Kohana::config('settings.title_delimiter');
+
 		// Store any exisitng URL parameters
 		$this->themes->js->url_params = json_encode($_GET);
-		
+
 		// Enable the map
 		$this->themes->map_enabled = TRUE;
-		
+
 		// Set the latitude and longitude
 		$this->themes->js->latitude = Kohana::config('settings.default_lat');
 		$this->themes->js->longitude = Kohana::config('settings.default_lon');
 		$this->themes->js->default_map = Kohana::config('settings.default_map');
 		$this->themes->js->default_zoom = Kohana::config('settings.default_zoom');
+
+		// Get Default Color
+		$this->themes->js->default_map_all = $this->template->content->default_map_all = Kohana::config('settings.default_map_all');
 		
+		// Get default icon
+		$this->themes->js->default_map_all_icon = $this->template->content->default_map_all_icon = '';
+		if (Kohana::config('settings.default_map_all_icon_id'))
+		{
+			$icon_object = ORM::factory('media')->find(Kohana::config('settings.default_map_all_icon_id'));
+			$this->themes->js->default_map_all_icon = $this->template->content->default_map_all_icon = Kohana::config('upload.relative_directory')."/".$icon_object->media_thumb;
+		}
+
 		// Load the alert radius view
 		$alert_radius_view = new View('alert_radius_view');
 		$alert_radius_view->show_usage_info = FALSE;
 		$alert_radius_view->enable_find_location = FALSE;
 		$alert_radius_view->css_class = "rb_location-radius";
-		
+
 		$this->template->content->alert_radius_view = $alert_radius_view;
-		
+
 		// Get locale
 		$l = Kohana::config('locale.language.0');
-		
+
 		// Get the report listing view
 		$report_listing_view = $this->_get_report_listing_view($l);
-		
+
 		// Set the view
 		$this->template->content->report_listing_view = $report_listing_view;
-		
+
 		// Load the category
 		$category_id = (isset($_GET['c']) AND intval($_GET['c']) > 0)? intval($_GET['c']) : 0;
 		$category = ORM::factory('category', $category_id);
@@ -88,8 +100,8 @@ class Reports_Controller extends Main_Controller {
 
 		// Collect report stats
 		$this->template->content->report_stats = new View('reports_stats');
+		
 		// Total Reports
-
 		$total_reports = Incident_Model::get_total_reports(TRUE);
 
 		// Get the date of the oldest report
@@ -101,8 +113,8 @@ class Reports_Controller extends Main_Controller {
 		{
 			$oldest_timestamp = Incident_Model::get_oldest_report_timestamp();
 		}
-		
-		//Get the date of the latest report
+
+		// Get the date of the latest report
 		if (isset($_GET['e']) AND !empty($_GET['e']) AND intval($_GET['e']) > 0)
 		{
 			$latest_timestamp = intval($_GET['e']);
@@ -112,21 +124,20 @@ class Reports_Controller extends Main_Controller {
 			$latest_timestamp = Incident_Model::get_latest_report_timestamp();
 		}
 
-
 		// Round the number of days up to the nearest full day
 		$days_since = ceil((time() - $oldest_timestamp) / 86400);
 		$avg_reports_per_day = ($days_since < 1)? $total_reports : round(($total_reports / $days_since),2);
-		
+
 		// Percent Verified
 		$total_verified = Incident_Model::get_total_reports_by_verified(TRUE);
 		$percent_verified = ($total_reports == 0) ? '-' : round((($total_verified / $total_reports) * 100),2).'%';
-		
+
 		// Category tree view
 		$this->template->content->category_tree_view = category::get_category_tree_view();
-		
+
 		// Additional view content
 		$this->template->content->custom_forms_filter = new View('reports_submit_custom_forms');
-		$disp_custom_fields = customforms::get_custom_form_fields();		
+		$disp_custom_fields = customforms::get_custom_form_fields();
 		$this->template->content->custom_forms_filter->disp_custom_fields = $disp_custom_fields;
 		$this->template->content->oldest_timestamp = $oldest_timestamp;
 		$this->template->content->latest_timestamp = $latest_timestamp;
@@ -136,8 +147,9 @@ class Reports_Controller extends Main_Controller {
 		$this->template->content->services = Service_Model::get_array();
 
 		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 	}
-	
+
 	/**
 	 * Helper method to load the report listing view
 	 */
@@ -148,13 +160,13 @@ class Reports_Controller extends Main_Controller {
 		{
 			$locale = Kohana::config('locale.language.0');
 		}
-		
+
 		// Load the report listing view
 		$report_listing = new View('reports_listing');
-		
+
 		// Fetch all incidents
 		$all_incidents = reports::fetch_incidents();
-		
+
 		// Pagination
 		$pagination = new Pagination(array(
 				'style' => 'front-end-reports',
@@ -165,7 +177,7 @@ class Reports_Controller extends Main_Controller {
 
 		// Reports
 		$incidents = Incident_Model::get_incidents(reports::$params, $pagination);
-		
+
 		// Swap out category titles with their proper localizations using an array (cleaner way to do this?)
 		$localized_categories = array();
 		foreach ($incidents as $incident)
@@ -180,16 +192,17 @@ class Reports_Controller extends Main_Controller {
 				}
 			}
 		}
+		
 		// Set the view content
 		$report_listing->incidents = $incidents;
 		$report_listing->localized_categories = $localized_categories;
-		
+
 		//Set default as not showing pagination. Will change below if necessary.
 		$report_listing->pagination = "";
 
 		// Pagination and Total Num of Report Stats
 		$plural = ($pagination->total_items == 1)? "" : "s";
-		
+
 		// Set the next and previous page numbers
 		$report_listing->next_page = $pagination->next_page;
 		$report_listing->previous_page = $pagination->previous_page;
@@ -202,7 +215,7 @@ class Reports_Controller extends Main_Controller {
 			if ($total_pages >= 1)
 			{
 				$report_listing->pagination = $pagination;
-				
+
 				// Show the total of report
 				// @todo This is only specific to the frontend reports theme
 				$report_listing->stats_breadcrumb = $pagination->current_first_item.'-'
@@ -210,7 +223,8 @@ class Reports_Controller extends Main_Controller {
 											. Kohana::lang('ui_main.reports');
 			}
 			else
-			{ // If we don't want to show pagination
+			{ 
+				// If we don't want to show pagination
 				$report_listing->stats_breadcrumb = $pagination->total_items.' '.Kohana::lang('ui_admin.reports');
 			}
 		}
@@ -218,16 +232,16 @@ class Reports_Controller extends Main_Controller {
 		{
 			$report_listing->stats_breadcrumb = '('.$pagination->total_items.' report'.$plural.')';
 		}
-		
+
 		// Return
 		return $report_listing;
 	}
-	
+
 	public function fetch_reports()
 	{
 		$this->template = "";
 		$this->auto_render = FALSE;
-		
+
 		if ($_GET)
 		{
 			$report_listing_view = $this->_get_report_listing_view();
@@ -238,14 +252,14 @@ class Reports_Controller extends Main_Controller {
 			print "";
 		}
 	}
-		
+
 	/**
 	 * Submits a new report.
 	 */
 	public function submit($id = FALSE, $saved = FALSE)
 	{
 		$db = new Database();
-		
+
 		// First, are we allowed to submit new reports?
 		if ( ! Kohana::config('settings.allow_reports'))
 		{
@@ -254,7 +268,9 @@ class Reports_Controller extends Main_Controller {
 
 		$this->template->header->this_page = 'reports_submit';
 		$this->template->content = new View('reports_submit');
-		
+
+		$this->template->header->page_title .= Kohana::lang('ui_main.reports_submit_new').Kohana::config('settings.title_delimiter');
+
 		//Retrieve API URL
 		$this->template->api_url = Kohana::config('settings.api_url');
 
@@ -280,14 +296,13 @@ class Reports_Controller extends Main_Controller {
 			'person_first' => '',
 			'person_last' => '',
 			'person_email' => '',
-			'form_id'	  => '',
+			'form_id'	  => '1',
 			'custom_field' => array()
 		);
-		
+
 		// Copy the form as errors, so the errors will be stored with keys corresponding to the form field names
 		$errors = $form;
 		$form_error = FALSE;
-
 		$form_saved = ($saved == 'saved');
 
 		// Initialize Default Values
@@ -296,23 +311,23 @@ class Reports_Controller extends Main_Controller {
 		$form['incident_minute'] = date('i');
 		$form['incident_ampm'] = date('a');
 		$form['country_id'] = Kohana::config('settings.default_country');
-		
+
 		// Initialize Default Value for Hidden Field Country Name, just incase Reverse Geo coding yields no result
 		$country_name = ORM::factory('country',$form['country_id']);
 		$form['country_name'] = $country_name->country;
-		
+
 		// Initialize custom field array
-		$form['custom_field'] = customforms::get_custom_form_fields($id,'',true);
-		
-		//GET custom forms
+		$form_id = $form['form_id'];
+		$form['custom_field'] = customforms::get_custom_form_fields($id,$form_id,true);
+
+		// GET custom forms
 		$forms = array();
 		foreach (customforms::get_custom_forms() as $custom_forms)
 		{
 			$forms[$custom_forms->id] = $custom_forms->form_title;
 		}
-		
 		$this->template->content->forms = $forms;
-		
+
 
 		// Check, has the form been submitted, if so, setup validation
 		if ($_POST)
@@ -323,18 +338,18 @@ class Reports_Controller extends Main_Controller {
 			// Test to see if things passed the rule checks
 			if (reports::validate($post))
 			{
-				
+
 				// STEP 1: SAVE LOCATION
 				$location = new Location_Model();
 				reports::save_location($post, $location);
-				
+
 				// STEP 2: SAVE INCIDENT
 				$incident = new Incident_Model();
 				reports::save_report($post, $incident, $location->id);
 
 				// STEP 2b: SAVE INCIDENT GEOMETRIES
 				reports::save_report_geometry($post, $incident);
-				
+
 				// STEP 3: SAVE CATEGORIES
 				reports::save_category($post, $incident);
 
@@ -347,20 +362,10 @@ class Reports_Controller extends Main_Controller {
 				// STEP 6: SAVE PERSONAL INFORMATION
 				reports::save_personal_info($post, $incident);
 
-				// Action::report_add/report_submit - Added a New Report
-				//++ Do we need two events for this? Or will one suffice?
-				//ETHERTON: Yes. Those of us who often write plugins for
-				//Ushahidi would like to have access to the $post arrays
-				//and the report object. Back in the day we even had access
-				//to the $post object, so if our plugins didn't get the 
-				//appropriate input we could raise an error, but alas,
-				//those days are gone. Now I suppose you could do something
-				//like Event::run('ushahidi_action.report_add', array($post, $incident));
-				//but for the sake of backward's compatibility, please don't
-				//Thanks.
+				// Run evnets
 				Event::run('ushahidi_action.report_submit', $post);
 				Event::run('ushahidi_action.report_add', $incident);
-				
+
 
 				url::redirect('reports/thanks');
 			}
@@ -389,16 +394,16 @@ class Reports_Controller extends Main_Controller {
 
 		$categories = $this->get_categories($form['incident_category']);
 		$this->template->content->categories = $categories;
-		
+
 		// Pass timezone
 		$this->template->content->site_timezone = Kohana::config('settings.site_timezone');
-		
+
 		// Pass the submit report message
 		$this->template->content->site_submit_report_message = Kohana::config('settings.site_submit_report_message');
 
 		// Retrieve Custom Form Fields Structure
 		$this->template->content->custom_forms = new View('reports_submit_custom_forms');
-		$disp_custom_fields = customforms::get_custom_form_fields($id,$form['form_id'], FALSE);
+		$disp_custom_fields = customforms::get_custom_form_fields($id,$form_id, FALSE);
 		$this->template->content->disp_custom_fields = $disp_custom_fields;
 		$this->template->content->stroke_width_array = $this->_stroke_width_array();
 		$this->template->content->custom_forms->disp_custom_fields = $disp_custom_fields;
@@ -409,7 +414,7 @@ class Reports_Controller extends Main_Controller {
 		$this->themes->datepicker_enabled = TRUE;
 		$this->themes->treeview_enabled = TRUE;
 		$this->themes->colorpicker_enabled = TRUE;
-		
+
 		$this->themes->js = new View('reports_submit_edit_js');
 		$this->themes->js->edit_mode = FALSE;
 		$this->themes->js->incident_zoom = FALSE;
@@ -427,9 +432,10 @@ class Reports_Controller extends Main_Controller {
 		}
 		$this->themes->js->geometries = $form['geometry'];
 
-		
+
 		// Rebuild Header Block
 		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 	}
 
 	 /**
@@ -444,18 +450,19 @@ class Reports_Controller extends Main_Controller {
 
 		// Load Akismet API Key (Spam Blocker)
 		$api_akismet = Kohana::config('settings.api_akismet');
-		
+
 		// Sanitize the report id before proceeding
 		$id = intval($id);
-		
-		if ($id > 0 AND Incident_Model::is_valid_incident($id,FALSE))
+
+		if ($id > 0 AND Incident_Model::is_valid_incident($id,TRUE))
 		{
 			$incident = ORM::factory('incident')
 				->where('id',$id)
 				->where('incident_active',1)
 				->find();
-			
-			if ( ! $incident->loaded)	// Not Found
+				
+			// Not Found
+			if ( ! $incident->loaded) 
 			{
 				url::redirect('reports/view/');
 			}
@@ -480,15 +487,12 @@ class Reports_Controller extends Main_Controller {
 			if ($_POST AND Kohana::config('settings.allow_comments') )
 			{
 				// Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
-
 				$post = Validation::factory($_POST);
 
 				// Add some filters
-
 				$post->pre_filter('trim', TRUE);
 
 				// Add some rules, the input field, followed by a list of checks, carried out in order
-				
 				if ( ! $this->user)
 				{
 					$post->add_rules('comment_author', 'required', 'length[3,100]');
@@ -498,11 +502,9 @@ class Reports_Controller extends Main_Controller {
 				$post->add_rules('captcha', 'required', 'Captcha::valid');
 
 				// Test to see if things passed the rule checks
-
 				if ($post->validate())
 				{
 					// Yes! everything is valid
-
 					if ($api_akismet != "")
 					{
 						// Run Akismet Spam Checker
@@ -514,7 +516,7 @@ class Reports_Controller extends Main_Controller {
 							'body' => $post->comment_description,
 							'user_ip' => $_SERVER['REMOTE_ADDR']
 						);
-						
+
 						if ($this->user)
 						{
 							$comment['author'] = $this->user->name;
@@ -552,7 +554,6 @@ class Reports_Controller extends Main_Controller {
 							// If the server is down, we have to post
 							// the comment :(
 							// $this->_post_comment($comment);
-
 							$comment_spam = 0;
 						}
 						else
@@ -629,7 +630,9 @@ class Reports_Controller extends Main_Controller {
 			$incident_description = nl2br($incident->incident_description);
 			Event::run('ushahidi_filter.report_title', $incident_title);
 			Event::run('ushahidi_filter.report_description', $incident_description);
-			
+
+			$this->template->header->page_title .= $incident_title.Kohana::config('settings.title_delimiter');
+
 			// Add Features
 			$this->template->content->features_count = $incident->geometry->count();
 			$this->template->content->features = $incident->geometry;
@@ -644,9 +647,14 @@ class Reports_Controller extends Main_Controller {
 			$this->template->content->incident_category = $incident->incident_category;
 
 			// Incident rating
-			$this->template->content->incident_rating = ($incident->incident_rating == '')
+			$rating = ORM::factory('rating')
+					->join('incident','incident.id','rating.incident_id','INNER')
+					->where('rating.incident_id',$incident->id)
+					->find();
+					
+			$this->template->content->incident_rating = ($rating->rating == '')
 				? 0
-				: $incident->incident_rating;
+				: $rating->rating;
 
 			// Retrieve Media
 			$incident_news = array();
@@ -666,9 +674,9 @@ class Reports_Controller extends Main_Controller {
 				elseif ($media->media_type == 1)
 				{
 					$incident_photo[] = array(
-											'large' => url::convert_uploaded_to_abs($media->media_link),
-											'thumb' => url::convert_uploaded_to_abs($media->media_thumb)
-											);
+						'large' => url::convert_uploaded_to_abs($media->media_link),
+						'thumb' => url::convert_uploaded_to_abs($media->media_thumb)
+						);
 				}
 			}
 
@@ -694,7 +702,7 @@ class Reports_Controller extends Main_Controller {
 
 		// Add Neighbors
 		$this->template->content->incident_neighbors = Incident_Model::get_neighbouring_incidents($id, TRUE, 0, 5);
-		
+
 		// News Source links
 		$this->template->content->incident_news = $incident_news;
 
@@ -745,6 +753,7 @@ class Reports_Controller extends Main_Controller {
 
 		// Rebuild Header Block
 		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 	}
 
 	/**
@@ -757,6 +766,7 @@ class Reports_Controller extends Main_Controller {
 
 		// Rebuild Header Block
 		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 	}
 
 	/**
@@ -804,7 +814,7 @@ class Reports_Controller extends Main_Controller {
 					{
 						$filter = "rating_ip = '".$_SERVER['REMOTE_ADDR']."' ";
 					}
-					
+
 					if ($type == 'original')
 					{
 						$previous = ORM::factory('rating')
@@ -832,12 +842,12 @@ class Reports_Controller extends Main_Controller {
 					{
 						$rating->comment_id = $id;
 					}
-					
+
 					// Is there a user?
 					if ($this->user)
 					{
 						$rating->user_id = $this->user->id;
-						
+
 						// User can't rate their own stuff
 						if ($type == 'original')
 						{
@@ -886,19 +896,28 @@ class Reports_Controller extends Main_Controller {
 
 		if (isset($_POST['address']) AND ! empty($_POST['address']))
 		{
-			$geocode = map::geocode($_POST['address']);
-			if ($geocode)
+			$geocode_result = map::geocode($_POST['address']);
+			if ($geocode_result)
 			{
-				echo json_encode(array("status"=>"success", "message"=>array($geocode['lat'], $geocode['lon'])));
+				echo json_encode(array_merge(
+					$geocode_result, 
+					array('status' => 'success')
+				));
 			}
 			else
 			{
-				echo json_encode(array("status"=>"error", "message"=>"ERROR!"));
+				echo json_encode(array(
+					'status' => 'error',
+					'message' =>'ERROR!'
+				));
 			}
 		}
 		else
 		{
-			echo json_encode(array("status"=>"error", "message"=>"ERROR!"));
+			echo json_encode(array(
+				'status' => 'error',
+				'message' => 'ERROR!'
+			));
 		}
 	}
 
@@ -948,27 +967,7 @@ class Reports_Controller extends Main_Controller {
 			{
 				$total_rating += $rating->rating;
 			}
-
-			// Update Counts
-			if ($type == 'original')
-			{
-				$incident = ORM::factory('incident', $id);
-				if ($incident->loaded == TRUE)
-				{
-					$incident->incident_rating = $total_rating;
-					$incident->save();
-				}
-			}
-			elseif ($type == 'comment')
-			{
-				$comment = ORM::factory('comment', $id);
-				if ($comment->loaded == TRUE)
-				{
-					$comment->comment_rating = $total_rating;
-					$comment->save();
-				}
-			}
-
+			
 			return $total_rating;
 		}
 		else
@@ -997,7 +996,7 @@ class Reports_Controller extends Main_Controller {
 			return TRUE;
 		}
 	}
-	
+
 	/**
 	 * Array with Geometry Stroke Widths
     */
@@ -1007,10 +1006,10 @@ class Reports_Controller extends Main_Controller {
 		{
 			$stroke_width_array["$i"] = $i;
 		}
-		
+
 		return $stroke_width_array;
 	}
-	
+
 	/**
 	 * Ajax call to update Incident Reporting Form
     */

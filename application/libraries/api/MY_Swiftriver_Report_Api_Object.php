@@ -116,7 +116,7 @@ class Swiftriver_Report_Api_Object extends Api_Object_Core {
             }
 
             // Test to see if things passed the rule checks
-            if ($post->validate()) 
+            if ($post->validate(FALSE)) 
             {
                 // SAVE LOCATION (***IF IT DOES NOT EXIST***)
                 $location = new Location_Model();
@@ -271,7 +271,6 @@ class Swiftriver_Report_Api_Object extends Api_Object_Core {
                 if ( ! empty($post->person_first) OR ! empty($post->person_last))
                 {
                     $person = new Incident_Person_Model();
-                    $person->location_id = $location->id;
                     $person->incident_id = $incident->id;
                     $person->person_first = $post->person_first;
                     $person->person_last = $post->person_last;

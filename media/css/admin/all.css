@@ -683,6 +683,7 @@ table td{
 	width:25px;
 }
 .table .col-2{ width:539px;}
+.table .col-2 p{ width:539px;word-wrap: break-word;}
 .table .col-2_sub{
 	width:519px;
 	padding-left:30px;
@@ -988,7 +989,7 @@ a.new-cat, a.show-messages {
 	background:url(../../img/icon-plus.gif) no-repeat 0 4px;
 	float:right;
 }
-a.new-cat:hover, a.show-messages:hover;{ text-decoration:none;}
+a.new-cat:hover, a.show-messages:hover{ text-decoration:none;}
 .category {
 	background:#f5f5f5;
 	width:377px;
@@ -1861,18 +1862,18 @@ UL.mapNavigation LI A:focus {
 }
 
 /* update info */
-#update-info {
+.update-info {
     line-height: 29px;
     font-size: 12px;
-    text-align: center;
     background : #FFFEEB;
     border-bottom-width: 1px;
     border-bottom-style: solid;
     border-top-width: 1px;
     border-top-style: solid;
+    padding: 5px;
 }
 
-#update-info a {
+.update-info a {
     font-size: 1.1em;
 }
 

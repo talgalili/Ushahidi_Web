@@ -67,7 +67,7 @@ class Dashboard_Controller extends Admin_Controller
 
 			$total_message_count += $message_count;
 		}
-        
+
 		$this->template->content->message_services = $message_services;
 
 		// Total Messages
@@ -107,6 +107,21 @@ class Dashboard_Controller extends Admin_Controller
 		$options = array('xaxis'=>array('mode'=>'"time"'));
 		
 		$this->template->content->report_chart = protochart::chart('report_chart',$data,$options,array('Reports'=>'CC0000'),410,310);
-    }
+		
+		// Render version sync checks if enabled
+		$this->template->content->version_sync = NULL;
+		if (Kohana::config('config.enable_ver_sync_warning') == TRUE)
+		{
+			$this->template->content->version_sync = View::factory('admin/version_sync');
+		}
+		
+		// Render security checks if enabled
+		$this->template->content->security_info = NULL;
+		if (Kohana::config('config.enable_security_info') == TRUE)
+		{
+			$this->template->content->security_info = View::factory('admin/security_info');
+		}
+		
+	}
 }
 ?>

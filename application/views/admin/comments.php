@@ -98,7 +98,7 @@
 											<h3><?php echo Kohana::lang('ui_main.no_results');?></h3>
 										</td>
 									</tr>
-								<?php	
+								<?php
 								}
 								foreach ($comments as $comment)
 								{
@@ -109,9 +109,8 @@
 									$comment_ip = $comment->comment_ip;
 									$comment_active = $comment->comment_active;
 									$comment_spam = $comment->comment_spam;
-									$comment_rating = $comment->comment_rating;
 									$comment_date = date('Y-m-d H:i', strtotime($comment->comment_date));
-									
+
 									$incident_id = $comment->incident->id;
 									$incident_title = $comment->incident->incident_title;
 									?>
@@ -119,19 +118,18 @@
 										<td class="col-1"><input name="comment_id[]" id="comment" value="<?php echo $comment_id; ?>" type="checkbox" class="check-box"/></td>
 										<td class="col-2">
 											<div class="post">
-												<h4><a href="<?php echo url::base() . 'reports/view/' . $incident_id; ?>"><?php echo $comment_author; ?></a></h4>
+												<h4><a href="<?php echo url::base() . 'reports/view/' . $incident_id; ?>"><?php echo html::specialchars($comment_author); ?></a></h4>
 												<?php
 												if ($incident_title != "")
 												{
-													?><div class="comment_incident"><?php echo Kohana::lang('ui_main.in_response_to');?>: <strong><a href="<?php echo url::base() . 'admin/reports/edit/' . $incident_id; ?>"><?php echo $incident_title; ?></a></strong></div><?php
+													?><div class="comment_incident"><?php echo Kohana::lang('ui_main.in_response_to');?>: <strong><a href="<?php echo url::base() . 'admin/reports/edit/' . $incident_id; ?>"><?php echo strip_tags($incident_title); ?></a></strong></div><?php
 												}
 												?>
-												<p><?php echo $comment_description; ?></p>
+												<p><?php echo html::specialchars($comment_description); ?></p>
 											</div>
 											<ul class="info">
 												<li class="none-separator"><?php echo Kohana::lang('ui_main.email');?>: <strong><?php echo $comment_email; ?></strong></li>
 												<li><?php echo Kohana::lang('ui_main.ip_address');?>: <strong><?php echo $comment_ip; ?></strong></li>
-												<li><?php echo Kohana::lang('ui_main.comment_rating');?>: <strong><?php echo $comment_rating; ?></strong></li>
 											</ul>
 										</td>
 										<td class="col-3"><?php echo $comment_date; ?></td>

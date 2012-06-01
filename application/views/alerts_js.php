@@ -17,27 +17,23 @@
 ?>
 		<?php require_once(APPPATH.'views/map_common_js.php'); ?>
 		
-		var map;
-		var radiusLayer;
 		jQuery(function($) {
 			
 			$(window).load(function(){
-			<?php 
 				
-				/*OpenLayers uses IE's VML for vector graphics.
-					We need to wait for IE's engine to finish loading all namespaces (document.namespaces) for VML.
-					jQuery.ready is executing too soon for IE to complete it's loading process.
-				 */
-			?>
+				// OpenLayers uses IE's VML for vector graphics. -->
+				// We need to wait for IE's engine to finish loading all namespaces (document.namespaces) for VML.
+				// jQuery.ready is executing too soon for IE to complete it's loading process.
 			
 			// Create the map
 			var latitude = <?php echo $latitude; ?>;
 			var longitude = <?php echo $longitude; ?>;
+			var zoomLevel = <?php echo $default_zoom; ?>;
 			
-			map = createMap('divMap', latitude, longitude);
+			var map = createMap('divMap', latitude, longitude, zoomLevel);
 			
 			// Add the radius layer
-			addRadiusLayer(map, latitude, longitude);
+			var radiusLayer = addRadiusLayer(map, latitude, longitude);
 			
 			// Draw circle around point
 			drawCircle(map, latitude, longitude);
@@ -60,19 +56,28 @@
 				$("#alert_lat").attr("value", lonlat2.lat);
 				$("#alert_lon").attr("value", lonlat2.lon);
 				
-				// Looking up country name using reverse geocoding					
-				reverseGeocode(lonlat2.lat, lonlat2.lon);
+				// Looking up country name using reverse geocoding
+				//    TODO: Function doesn't exist so it clearly isn't doing anything. -BH
+				// reverseGeocode(lonlat2.lat, lonlat2.lon);
 			});
-			
-			/* 
+
+			/*
 			Google GeoCoder
 			TODO - Add Yahoo and Bing Geocoding Services
 			 */
-			$('.btn_find').live('click', function () {
+
+			$('.btn_find').on('click', function () {
 				geoCode();
 			});
-			
-			
+
+			$('#location_find').bind('keypress', function(e) {
+				var code = (e.keyCode ? e.keyCode : e.which);
+				if(code == 13) { //Enter keycode
+					geoCode();
+					return false;
+				}
+			});
+
 			// Alerts Slider
 			$("select#alert_radius").selectToUISlider({
 				labels: 6,
@@ -128,10 +133,10 @@
 		{
 			$('#find_loading').html('<img src="<?php echo url::file_loc('img')."media/img/loading_g.gif"; ?>">');
 			address = $("#location_find").val();
-			$.post("<?php echo url::site() . 'reports/geocode/' ?>", { address: address },
+			$.post("<?php echo url::site(); ?>reports/geocode/", { address: address },
 				function(data){
 					if (data.status == 'success'){
-						var lonlat = new OpenLayers.LonLat(data.message[1], data.message[0]);
+						var lonlat = new OpenLayers.LonLat(data.longitude, data.latitude);
 						lonlat.transform(proj_4326,proj_900913);
 					
 						m = new OpenLayers.Marker(lonlat);
@@ -142,32 +147,20 @@
 						newRadius = $("#alert_radius").val();
 						radius = newRadius * 1000
 
-						drawCircle(data.message[1],data.message[0], radius);
-						
-						// Looking up country name using reverse geocoding					
-						reverseGeocode(data.message[0], data.message[1]);
+						drawCircle(data.longitude,data.latitude, radius);
 					
 						// Update form values (jQuery)
-						$("#alert_lat").attr("value", data.message[0]);
-						$("#alert_lon").attr("value", data.message[1]);
+						$("#alert_lat").val(data.latitude);
+						$("#alert_lon").val(data.longitude);
 					} else {
-						alert(address + " not found!\n\n***************************\nEnter more details like city, town, country\nor find a city or town close by and zoom in\nto find your precise location");
+						// Alert message to be displayed
+						var alertMessage = address + " not found!\n\n***************************\n" + 
+						    "Enter more details like city, town, country\nor find a city or town " +
+						    "close by and zoom in\nto find your precise location";
+
+						alert(alertMessage)
 					}
 					$('#find_loading').html('');
 				}, "json");
 			return false;
-		}	
-			
-		// Reverse GeoCoder
-		function reverseGeocode(latitude, longitude) {		
-			var latlng = new google.maps.LatLng(latitude, longitude);
-			var geocoder = new google.maps.Geocoder();
-			geocoder.geocode({'latLng': latlng}, function(results, status){
-				if (status == google.maps.GeocoderStatus.OK) {
-					var country = results[results.length - 1].formatted_address;
-					$("#alert_country").val(country);
-				} else {
-					console.log("Geocoder failed due to: " + status);
-				}
-			});
 		}

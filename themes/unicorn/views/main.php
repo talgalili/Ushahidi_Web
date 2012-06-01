@@ -1,4 +1,3 @@
-
 <script type="text/javascript">
 $(function(){
   
@@ -21,12 +20,6 @@ $(function(){
 <div id="main" class="clearingfix">
 	<div id="mainmiddle">
 
-	<?php if($site_message != '') { ?>
-		<div class="green-box">
-			<h3><?php echo $site_message; ?></h3>
-		</div>
-	<?php } ?>
-
 		<!-- right column -->
 		<div id="report-map-filter-box" class="clearingfix">
 	    <a class="btn toggle" id="filter-menu-toggle" class="" href="#the-filters"><?php echo Kohana::lang('ui_main.filter_reports_by'); ?><span class="btn-icon ic-right">&raquo;</span></a>
@@ -39,8 +32,19 @@ $(function(){
     			<h3><?php echo Kohana::lang('ui_main.category');?></h3>
 			
     			<ul id="category_switch" class="category-filters">
-    				<li><a class="active" id="cat_0" href="#"><span class="swatch" style="background-color:<?php echo "#".$default_map_all;?>"></span><span class="category-title"><?php echo Kohana::lang('ui_main.all_categories');?></span></a></li>
     				<?php
+						$color_css = 'class="swatch" style="background-color:#'.$default_map_all.'"';
+						$all_cat_image = '';
+						if($default_map_all_icon != NULL) {
+							$all_cat_image = html::image(array(
+								'src'=>$default_map_all_icon,
+								'style'=>'float:left;padding-right:5px;'
+							));
+							$color_css = '';
+						}
+						?>
+						<li><a class="active" id="cat_0" href="#"><span <?php echo $color_css;?>><?php echo $all_cat_image; ?></span><span class="category-title"><?php echo Kohana::lang('ui_main.all_categories');?></span></a></li>
+						<?php
     					foreach ($categories as $category => $category_info)
     					{
     						$category_title = $category_info[0];
@@ -227,20 +231,12 @@ $(function(){
 				</div>
 			<?php } ?>
 			<!-- / additional content -->
-			
-			<?php
-			// Action::main_sidebar - Add Items to the Entry Page Sidebar
-			Event::run('ushahidi_action.main_sidebar');
-			?>
-	
 		</div>
 		<!-- / right column -->
-	
+
 		<!-- content column -->
 		<div id="content" class="clearingfix">
-		  
-
-				<?php								
+				<?php
 				// Map and Timeline Blocks
 				echo $div_map;
 				echo $div_timeline;

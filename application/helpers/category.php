@@ -57,7 +57,7 @@ class category_Core {
 	/**
 	 * Display category tree with input checkboxes.
 	 */
-	public static function tree($categories, array $selected_categories, $form_field, $columns = 1, $enable_parents = FALSE)
+	public static function tree($categories,$hide_children = TRUE, array $selected_categories, $form_field, $columns = 1, $enable_parents = FALSE)
 	{
 		$html = '';
 
@@ -84,17 +84,25 @@ class category_Core {
 			}
 
 			// Display parent category.
-			$html .= '<li>';
+			$html .= '<li title="'.$category->category_description.'">';
 			$html .= category::display_category_checkbox($category, $selected_categories, $form_field, $enable_parents);
 			
 			// Visible Child Count
 			$vis_child_count = 0;
 			foreach ($category->children as $child)
 			{
-				$child_visible = $child->category_visible;
-				if ($child_visible)
+				// If we don't want to show a category's hidden children
+				if($hide_children == TRUE)
 				{
-					// Increment Visible Child count
+					$child_visible = $child->category_visible;
+					if ($child_visible)
+					{
+						// Increment Visible Child count
+						++$vis_child_count;
+					}
+				}
+				else
+				{
 					++$vis_child_count;
 				}
 			}
@@ -104,10 +112,18 @@ class category_Core {
 				$html .= '<ul>';
 				foreach ($category->children as $child)
 				{
-					$child_visible = $child->category_visible;
-					if ($child_visible)
+					if($hide_children)
 					{
-						$html .= '<li>';
+						$child_visible = $child->category_visible;
+						if ($child_visible)
+						{
+							$html .= '<li>';
+							$html .= category::display_category_checkbox($child, $selected_categories, $form_field, $enable_parents);
+						}
+					}
+					else
+					{
+						$html .= '<li title="'.$child->category_description.'">';
 						$html .= category::display_category_checkbox($child, $selected_categories, $form_field, $enable_parents);
 					}
 				}
@@ -156,18 +172,18 @@ class category_Core {
 		self::_init_parent_category_report_totals($category_data, $table_prefix);
 		
 		// Query to fetch the report totals for the parent categories
-		$sql = "SELECT c2.id,  COUNT(DISTINCT ic.incident_id)  AS report_count "
-			. "FROM ".$table_prefix."category c, ".$table_prefix."category c2, ".$table_prefix."incident_category ic "
+		$sql = "SELECT c_parent.id,  COUNT(DISTINCT ic.incident_id)  AS report_count "
+			. "FROM ".$table_prefix."category c "
+			. "INNER JOIN ".$table_prefix."category c_parent ON (c.parent_id = c_parent.id) "
+			. "INNER JOIN ".$table_prefix."incident_category ic ON (ic.category_id = c.id OR ic.category_id = c_parent.id) "
 			. "INNER JOIN ".$table_prefix."incident i ON (ic.incident_id = i.id) "
-			. "WHERE (ic.category_id = c.id OR ic.category_id = c2.id) "
-			. "AND c.parent_id = c2.id "
-			. "AND i.incident_active = 1 "
-			. "AND c2.category_visible = 1 "
+			. "WHERE i.incident_active = 1 "
+			. "AND c_parent.category_visible = 1 "
 			. "AND c.category_visible = 1 "
-			. "AND c2.parent_id = 0 "
-			. "AND c2.category_title != \"NONE\""
-			. "GROUP BY c2.id "
-			. "ORDER BY c2.id ASC";
+			. "AND c_parent.parent_id = 0 "
+			. "AND c_parent.category_title != \"NONE\""
+			. "GROUP BY c_parent.id "
+			. "ORDER BY c_parent.id ASC";
 		
 		// Update the report_count field of each top-level category
 		foreach ($db->query($sql) as $category_total)
@@ -181,14 +197,13 @@ class category_Core {
 		}
 		
 		// Fetch the other categories
-		$sql = "SELECT c.id, c.parent_id, c.category_title, c.category_color, COUNT(c.id) report_count "
+		$sql = "SELECT c.id, c.parent_id, c.category_title, c.category_color, c.category_image, c.category_image_thumb, COUNT(i.id) report_count "
 			. "FROM ".$table_prefix."category c "
-			. "INNER JOIN ".$table_prefix."incident_category ic ON (ic.category_id = c.id) "
-			. "INNER JOIN ".$table_prefix."incident i ON (ic.incident_id = i.id) "
+			. "LEFT JOIN ".$table_prefix."incident_category ic ON (ic.category_id = c.id) "
+			. "LEFT JOIN ".$table_prefix."incident i ON (ic.incident_id = i.id AND i.incident_active = 1 ) "
 			. "WHERE c.category_visible = 1 "
 			. "AND c.category_title != \"NONE\" "
-			. "AND i.incident_active = 1 "
-			. "GROUP BY c.category_title "
+			. "GROUP BY c.id "
 			. "ORDER BY c.category_title ASC";
 		
 		// Add child categories
@@ -204,6 +219,8 @@ class category_Core {
 					'category_title' => Category_Lang_Model::category_title($category->id,Kohana::config('locale.language.0')),
 					'parent_id' => $category->parent_id,
 					'category_color' => $category->category_color,
+					'category_image' => $category->category_image,
+					'category_image_thumb' => $category->category_image_thumb,
 					'report_count' => $category->report_count,
 					'children' => array()
 				);
@@ -238,6 +255,8 @@ class category_Core {
 				'category_title' => Category_Lang_Model::category_title($temp_category->id,Kohana::config('locale.language.0')),
 				'parent_id' => $temp_category->parent_id,
 				'category_color' => $temp_category->category_color,
+				'category_image_thumb' => $temp_category->category_image_thumb,
+				'category_image' => $temp_category->category_image,
 				'report_count' => $report_count,
 				'children' => array()
 			);
@@ -264,9 +283,11 @@ class category_Core {
 			// Determine the category class
 			$category_class = ($category['parent_id'] > 0)? " class=\"report-listing-category-child\"" : "";
 			
+			$category_image = $category['category_image_thumb'] ? html::image(array('src'=> url::convert_uploaded_to_abs($category['category_image_thumb']), 'style'=>'float:left;padding-right:5px;')) : NULL;
+			
 			$tree_html .= "<li".$category_class.">"
 							. "<a href=\"#\" class=\"cat_selected\" id=\"filter_link_cat_".$id."\">"
-							. "<span class=\"item-swatch\" style=\"background-color: #".$category['category_color']."\">&nbsp;</span>"
+							. "<span class=\"item-swatch\" style=\"background-color: #".$category['category_color']."\">$category_image</span>"
 							. "<span class=\"item-title\">".strip_tags($category['category_title'])."</span>"
 							. "<span class=\"item-count\">".$category['report_count']."</span>"
 							. "</a></li>";

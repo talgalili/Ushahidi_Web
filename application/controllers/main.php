@@ -61,19 +61,8 @@ class Main_Controller extends Template_Controller {
 	{
 		parent::__construct();
 
-		$this->auth = new Auth();
-		$this->auth->auto_login();
-
 		// Load Session
 		$this->session = Session::instance();
-
-		if(Kohana::config('settings.private_deployment'))
-		{
-			if ( ! $this->auth->logged_in('login'))
-			{
-				url::redirect('login');
-			}
-		}
 
 		// Load cache
 		$this->cache = new Cache;
@@ -88,6 +77,8 @@ class Main_Controller extends Template_Controller {
 		$this->template->header->submit_btn = $this->themes->submit_btn();
 		$this->template->header->languages = $this->themes->languages();
 		$this->template->header->search = $this->themes->search();
+		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 
 		// Set Table Prefix
 		$this->table_prefix = Kohana::config('database.default.table_prefix');
@@ -116,25 +107,14 @@ class Main_Controller extends Template_Controller {
 		$this->template->header->site_name_style = $site_name_style;
 		$this->template->header->site_tagline = Kohana::config('settings.site_tagline');
 
+		// page_title is a special variable that will be overridden by other controllers to
+		//    change the title bar contents
+		$this->template->header->page_title = '';
+
 		//pass the URI to the header so we can dynamically add css classes to the "body" tag
 		$this->template->header->uri_segments = Router::$segments;
 
 		$this->template->header->this_page = "";
-
-		// Google Analytics
-		$google_analytics = Kohana::config('settings.google_analytics');
-		$this->template->footer->google_analytics = $this->themes->google_analytics($google_analytics);
-
-
-		// Get tracking javascript for stats
-		$this->template->footer->ushahidi_stats = (Kohana::config('settings.allow_stat_sharing') == 1)
-			? Stats_Model::get_javascript()
-			: '';
-
-		// Enable CDN gradual upgrader
-		$this->template->footer->cdn_gradual_upgrade = (Kohana::config('cdn.cdn_gradual_upgrade') != false)
-			? cdn::cdn_gradual_upgrade_js()
-			: '';
 
 		// add copyright info
 		$this->template->footer->site_copyright_statement = '';
@@ -217,7 +197,10 @@ class Main_Controller extends Template_Controller {
 		$site_message = trim(Kohana::config('settings.site_message'));
 		if($site_message != '')
 		{
+			// Send the site message to both the header and the main content body
+			//   so a theme can utilize it in either spot.
 			$this->template->content->site_message = $site_message;
+			$this->template->header->site_message = $site_message;
 		}
 
 		// Get locale
@@ -284,6 +267,14 @@ class Main_Controller extends Template_Controller {
 
 		// Get Default Color
 		$this->template->content->default_map_all = Kohana::config('settings.default_map_all');
+
+		// Get default icon
+		$this->template->content->default_map_all_icon = '';
+		if (Kohana::config('settings.default_map_all_icon_id'))
+		{
+			$icon_object = ORM::factory('media')->find(Kohana::config('settings.default_map_all_icon_id'));
+			$this->template->content->default_map_all_icon = Kohana::config('upload.relative_directory')."/".$icon_object->media_medium;
+		}
 
 		// Get Twitter Hashtags
 		$this->template->content->twitter_hashtag_array = array_filter(array_map('trim',
@@ -475,6 +466,9 @@ class Main_Controller extends Template_Controller {
 		$this->themes->js->longitude = Kohana::config('settings.default_lon');
 		$this->themes->js->default_map_all = Kohana::config('settings.default_map_all');
 
+		// Get default icon
+		$this->themes->js->default_map_all_icon = $this->template->content->default_map_all_icon;
+
 		$this->themes->js->active_startDate = $display_startDate;
 		$this->themes->js->active_endDate = $display_endDate;
 
@@ -483,18 +477,9 @@ class Main_Controller extends Template_Controller {
 		//$myPacker = new javascriptpacker($js , 'Normal', false, false);
 		//$js = $myPacker->pack();
 
-		// Rebuild Header Block
+		// Build Header and Footer Blocks
 		$this->template->header->header_block = $this->themes->header_block();
-	}
-
-	public function cdn_gradual_upgrade()
-	{
-		$this->auto_render = FALSE;
-		$this->template = "";
-		if (Kohana::config('cdn.cdn_gradual_upgrade') != FALSE)
-		{
-			cdn::gradual_upgrade();
-		}
+		$this->template->footer->footer_block = $this->themes->footer_block();
 	}
 
 } // End Main

@@ -26,14 +26,16 @@ var selectedFeatures = [];
 $(document).ready(function() {
 	// Now initialize the map
 	var options = {
-	units: "m"
+	units: "dd"
 	, numZoomLevels: 18
 	, controls:[],
 	projection: proj_900913,
 	'displayProjection': proj_4326,
 	eventListeners: {
 			"zoomend": incidentZoom
-	    }
+	   },
+				maxExtent: new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
+				maxResolution: 156543.0339
 	};
 	map = new OpenLayers.Map('divMap', options);
 
@@ -171,7 +173,7 @@ $(document).ready(function() {
 
 
 	// Clear Map
-	$('.btn_clear').live('click', function () {
+	$('.btn_clear').on('click', function () {
 		clear_everything();
 	});
 
@@ -186,7 +188,7 @@ $(document).ready(function() {
 	}
 
 	// GeoCode
-	$('.btn_find').live('click', function () {
+	$('.btn_find').on('click', function () {
 		geoCode();
 	});
 	$('#location_find').bind('keypress', function(e) {

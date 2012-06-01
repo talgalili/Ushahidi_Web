@@ -48,7 +48,7 @@ class Login_Controller extends Template_Controller {
 
 		$insufficient_role = FALSE;
 
-		if ($auth->logged_in() OR $auth->auto_login())
+		if ($auth->logged_in())
 		{
 			if ( $user = Session::instance()->get('auth_user',FALSE) )
 			{
@@ -59,7 +59,8 @@ class Login_Controller extends Template_Controller {
 				}
 
 				// Admins go to the admin panel
-				if($auth->logged_in('admin') OR $auth->logged_in('superadmin'))
+				// Temporary fix - any non member role gets admin access
+				if($auth->logged_in('login') AND ! $auth->logged_in('member'))
 				{
 					url::redirect('admin');
 				}

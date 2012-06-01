@@ -15,6 +15,7 @@
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
  */
 ?>
+    <?php @require_once(APPPATH.'views/map_common_js.php'); ?>
 		// Map JS
 		
 		// Map Object
@@ -47,6 +48,8 @@
 		var defaultZoom = <?php echo $default_zoom; ?>;
 		var markerRadius = <?php echo $marker_radius; ?>;
 		var markerOpacity = "<?php echo $marker_opacity; ?>";
+		var markerStokeWidth = <?php echo $marker_stroke_width; ?>;
+		var markerStrokeOpacity = "<?php echo $marker_stroke_opacity; ?>";
 		var selectedFeature;
 		var allGraphData = "";
 		var dailyGraphData = "";
@@ -127,84 +130,6 @@
 			if ($("#OpenLayers\\.Control\\.LoadingPanel_4"))
 			{
 				$("#OpenLayers\\.Control\\.LoadingPanel_4").hide();
-			}
-		}
-
-		/**
-		 * Close Popup
-		 */
-		function onPopupClose(event)
-		{
-			selectControl.unselect(selectedFeature);
-			selectedFeature = null;
-		}
-
-		/**
-		 * Display popup when feature selected
-		 */
-		function onFeatureSelect(event)
-		{
-			selectedFeature = event.feature;
-			zoom_point = event.feature.geometry.getBounds().getCenterLonLat();
-			lon = zoom_point.lon;
-			lat = zoom_point.lat;
-			
-			var thumb = "";
-			if ( typeof(event.feature.attributes.thumb) != 'undefined' && 
-				event.feature.attributes.thumb != '')
-			{
-				thumb = "<div class=\"infowindow_image\"><a href='"+event.feature.attributes.link+"'>";
-				thumb += "<img src=\""+event.feature.attributes.thumb+"\" height=\"59\" width=\"89\" /></a></div>";
-			}
-
-			var content = "<div class=\"infowindow\">" + thumb;
-			content += "<div class=\"infowindow_content\"><div class=\"infowindow_list\">"+event.feature.attributes.name+"</div>";
-			content += "\n<div class=\"infowindow_meta\">";
-			if ( typeof(event.feature.attributes.link) != 'undefined' &&
-				event.feature.attributes.link != '')
-			{
-				content += "<a href='"+event.feature.attributes.link+"'><?php echo Kohana::lang('ui_main.more_information');?></a><br/>";
-			}
-			
-			content += "<a href='javascript:zoomToSelectedFeature("+ lon + ","+ lat +",1)'>";
-			content += "<?php echo Kohana::lang('ui_main.zoom_in');?></a>";
-			content += "&nbsp;&nbsp;|&nbsp;&nbsp;";
-			content += "<a href='javascript:zoomToSelectedFeature("+ lon + ","+ lat +",-1)'>";
-			content += "<?php echo Kohana::lang('ui_main.zoom_out');?></a></div>";
-			content += "</div><div style=\"clear:both;\"></div></div>";		
-
-			if (content.search("<?php echo '<'; ?>script") != -1)
-			{
-				content = "Content contained Javascript! Escaped content below.<br />" + content.replace(/<?php echo '<'; ?>/g, "&lt;");
-			}
-            
-			// Destroy existing popups before opening a new one
-			if (event.feature.popup != null)
-			{
-				map.removePopup(event.feature.popup);
-			}
-			
-			popup = new OpenLayers.Popup.FramedCloud("chicken", 
-				event.feature.geometry.getBounds().getCenterLonLat(),
-				new OpenLayers.Size(100,100),
-				content,
-				null, true, onPopupClose);
-
-			event.feature.popup = popup;
-			map.addPopup(popup);
-		}
-
-		/**
-		 * Destroy Popup Layer
-		 */
-		function onFeatureUnselect(event)
-		{
-			// Safety check
-			if (event.feature.popup != null)
-			{
-				map.removePopup(event.feature.popup);
-				event.feature.popup.destroy();
-				event.feature.popup = null;
 			}
 		}
 
@@ -507,26 +432,6 @@
 			});
 		}
 
-		/**
-		 * Zoom to Selected Feature from within Popup
-		 */
-		function zoomToSelectedFeature(lon, lat, zoomfactor)
-		{
-			var lonlat = new OpenLayers.LonLat(lon,lat);
-
-			// Get Current Zoom
-			currZoom = map.getZoom();
-			// New Zoom
-			newZoom = currZoom + zoomfactor;
-			// Center and Zoom
-			map.setCenter(lonlat, newZoom);
-			// Remove Popups
-			for (var i=0; i<?php echo '<'; ?>map.popups.length; ++i)
-			{
-				map.removePopup(map.popups[i]);
-			}
-		}
-		
 		/*
 		Zoom to Selected Feature from outside Popup
 		*/
@@ -655,7 +560,7 @@
 			- Units in Metres instead of Degrees					
 			*/
 			var options = {
-				units: "mi",
+				units: "dd",
 				numZoomLevels: 18,
 				controls:[],
 				projection: proj_900913,
@@ -663,7 +568,9 @@
 				eventListeners: {
 					"zoomend": mapMove
 				},
-				'theme': null
+				'theme': null,
+				maxExtent: new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
+				maxResolution: 156543.0339
 			};
 			
 			map = new OpenLayers.Map('map', options);

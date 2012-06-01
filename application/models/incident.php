@@ -19,15 +19,31 @@ class Incident_Model extends ORM {
 	 * One-to-may relationship definition
 	 * @var array
 	 */
-	protected $has_many = array('category' => 'incident_category', 'media', 'verify', 'comment',
-		'rating', 'alert' => 'alert_sent', 'incident_lang', 'form_response','cluster' => 'cluster_incident',
-		'geometry');
+	protected $has_many = array(
+		'category' => 'incident_category',
+		'media',
+		'verify',
+		'comment',
+		'rating',
+		'alert' => 'alert_sent',
+		'incident_lang',
+		'form_response',
+		'cluster' => 'cluster_incident',
+		'geometry'
+	);
 
 	/**
 	 * One-to-one relationship definition
 	 * @var array
 	 */
-	protected $has_one = array('location','incident_person','user','message','twitter','form');
+	protected $has_one = array(
+		'location',
+		'incident_person',
+		'user',
+		'message',
+		'twitter',
+		'form'
+	);
 
 	/**
 	 * Many-to-one relationship definition
@@ -56,12 +72,17 @@ class Incident_Model extends ORM {
 	{
 		// Get all active categories
 		$categories = array();
-		foreach (ORM::factory('category')
-			->where('category_visible', '1')
-			->find_all() as $category)
+		foreach
+		(
+			ORM::factory('category')
+			    ->where('category_visible', '1')
+			    ->find_all() as $category)
 		{
 			// Create a list of all categories
-			$categories[$category->id] = array($category->category_title, $category->category_color);
+			$categories[$category->id] = array(
+				$category->category_title, 
+				$category->category_color
+			);
 		}
 		return $categories;
 	}
@@ -169,11 +190,11 @@ class Incident_Model extends ORM {
 			$groupby_date_text = "YEARWEEK(incident_date)";
 		}
 
-		$date_filter = ($start_date) ? ' AND incident_date >= "' . $start_date . '"' : "";
+		$date_filter = ($start_date) ? ' AND incident_date >= "' . $db->escape($start_date) . '"' : "";
 
 		if ($end_date)
 		{
-			$date_filter .= ' AND incident_date <= "' . $end_date . '"';
+			$date_filter .= ' AND incident_date <= "' . $db->escape($end_date) . '"';
 		}
 
 		$active_filter = ($active == 'all' || $active == 'false')? $active_filter = '0,1' : '1';
@@ -183,7 +204,7 @@ class Incident_Model extends ORM {
 		if (isset($media_type) AND is_numeric($media_type))
 		{
 			$joins = 'INNER JOIN '.$table_prefix.'media AS m ON m.incident_id = i.id';
-			$general_filter = ' AND m.media_type IN ('. $media_type  .')';
+			$general_filter = ' AND m.media_type IN ('. $db->escape($media_type)  .')';
 		}
 
 		$graph_data = array();
@@ -304,12 +325,12 @@ class Incident_Model extends ORM {
 	 * Checks if a specified incident id is numeric and exists in the database
 	 *
 	 * @param int $incident_id ID of the incident to be looked up
-	 * @param bool $approved Whether the incident has been approved
+	 * @param bool $approved Whether to include un-approved reports
 	 * @return bool
 	 */
-	public static function is_valid_incident($incident_id, $approved = FALSE)
+	public static function is_valid_incident($incident_id, $approved = TRUE)
 	{
-		$where = ($approved == TRUE)? array("incident_active" => "1") : array("id >" => 0);
+		$where = ($approved == TRUE) ? array("incident_active" => "1") : array("id >" => 0);
 		return (intval($incident_id) > 0)
 			? ORM::factory('incident')->where($where)->find(intval($incident_id))->loaded
 			: FALSE;
@@ -427,7 +448,7 @@ class Incident_Model extends ORM {
 		if (self::is_valid_incident($incident_id))
 		{
 			$where = array(
-				'incident_id' => $incident_id,
+				'comment.incident_id' => $incident_id,
 				'comment_active' => '1',
 				'comment_spam' => '0'
 			);
@@ -459,6 +480,8 @@ class Incident_Model extends ORM {
 			// Get the table prefix
 			$table_prefix = Kohana::config('database.default.table_prefix');
 
+			$incident_id = (intval($incident_id));
+
 			// Get the location object and extract the latitude and longitude
 			$location = self::factory('incident', $incident_id)->location;
 			$latitude = $location->latitude;
@@ -469,14 +492,14 @@ class Incident_Model extends ORM {
 
 			// Query to fetch the neighbour
 			$sql = "SELECT DISTINCT i.*, l.`latitude`, l.`longitude`, l.location_name, "
-				. "((ACOS(SIN($latitude * PI() / 180) * SIN(l.`latitude` * PI() / 180) + COS($latitude * PI() / 180) * "
-				. "	COS(l.`latitude` * PI() / 180) * COS(($longitude - l.`longitude`) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) AS distance "
+				. "((ACOS(SIN( ? * PI() / 180) * SIN(l.`latitude` * PI() / 180) + COS( ? * PI() / 180) * "
+				. "	COS(l.`latitude` * PI() / 180) * COS(( ? - l.`longitude`) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) AS distance "
 				. "FROM `".$table_prefix."incident` AS i "
 				. "INNER JOIN `".$table_prefix."location` AS l ON (l.`id` = i.`location_id`) "
 				. "INNER JOIN `".$table_prefix."incident_category` AS ic ON (i.`id` = ic.`incident_id`) "
 				. "INNER JOIN `".$table_prefix."category` AS c ON (ic.`category_id` = c.`id`) "
 				. "WHERE i.incident_active = 1 "
-				. "AND i.id <> ".$incident_id." ";
+				. "AND i.id <> ? ";
 
 			// Check if the distance has been specified
 			if (intval($distance) > 0)
@@ -501,7 +524,7 @@ class Incident_Model extends ORM {
 			}
 
 			// Fetch records and return
-			return Database::instance()->query($sql);
+			return Database::instance()->query($sql, $latitude, $latitude, $longitude, $incident_id);
 		}
 		else
 		{
@@ -534,4 +557,114 @@ class Incident_Model extends ORM {
 		$incident->incident_verified = $val;
 		return $incident->save();
 	}
+
+	/**
+	 * Overrides the default delete method for the ORM.
+	 * Deletes all other content related to the incident - performs
+	 * an SQL destroy
+	 */
+	public function delete()
+	{
+		// Delete Location
+		ORM::factory('location')
+			->where('id', $this->location_id)
+			->delete_all();
+
+		// Delete Categories
+		ORM::factory('incident_category')
+		    ->where('incident_id', $this->id)
+		    ->delete_all();
+
+		// Delete Translations
+		ORM::factory('incident_lang')
+		    ->where('incident_id', $this->id)
+		    ->delete_all();
+
+		// Delete Photos From Directory
+		$photos = ORM::factory('media')
+				      ->where('incident_id', $this->id)
+				      ->where('media_type', 1)
+				      ->find_all();
+		
+		foreach ($photos as $photo)
+		{
+			$this->_delete_photo($photo->id);
+		}
+
+		// Delete Media
+		ORM::factory('media')
+		    ->where('incident_id', $this->id)
+		    ->delete_all();
+
+		// Delete Sender
+		ORM::factory('incident_person')
+		    ->where('incident_id', $this->id)
+		    ->delete_all();
+
+		// Delete relationship to SMS message
+		$updatemessage = ORM::factory('message')
+						     ->where('incident_id', $this->id)
+						     ->find();
+
+		if ($updatemessage->loaded)
+		{
+			$updatemessage->incident_id = 0;
+			$updatemessage->save();
+		}
+
+		// Delete Comments
+		ORM::factory('comment')
+			->where('incident_id', $this->id)
+			->delete_all();
+
+		$incident_id = $this->id;
+
+		// Action::report_delete - Deleted a Report
+		Event::run('ushahidi_action.report_delete', $incident_id);
+
+		parent::delete();
+	}
+
+	/**
+	 * Delete Photo
+	 * @param int $id The unique id of the photo to be deleted
+	 */
+	private function _delete_photo($id)
+	{
+		$photo = ORM::factory('media', $id);
+		$photo_large = $photo->media_link;
+		$photo_medium = $photo->media_medium;
+		$photo_thumb = $photo->media_thumb;
+
+		if (file_exists(Kohana::config('upload.directory', TRUE).$photo_large))
+		{
+			unlink(Kohana::config('upload.directory', TRUE).$photo_large);
+		}
+		elseif (Kohana::config("cdn.cdn_store_dynamic_content") AND valid::url($photo_large))
+		{
+			cdn::delete($photo_large);
+		}
+
+		if (file_exists(Kohana::config('upload.directory', TRUE).$photo_medium))
+		{
+			unlink(Kohana::config('upload.directory', TRUE).$photo_medium);
+		}
+		elseif (Kohana::config("cdn.cdn_store_dynamic_content") AND valid::url($photo_medium))
+		{
+			cdn::delete($photo_medium);
+		}
+
+		if (file_exists(Kohana::config('upload.directory', TRUE).$photo_thumb))
+		{
+			unlink(Kohana::config('upload.directory', TRUE).$photo_thumb);
+		}
+		elseif (Kohana::config("cdn.cdn_store_dynamic_content") AND valid::url($photo_thumb))
+		{
+			cdn::delete($photo_thumb);
+		}
+
+		// Finally Remove from DB
+		$photo->delete();
+	}
+
 }
