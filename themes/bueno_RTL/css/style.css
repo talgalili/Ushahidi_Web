@@ -10,6 +10,11 @@ Author Email: tal.galili@gmail.com
 /* Handcoded by RapidxHTML - htp://www.rapidxhtml.com */
 
 /* reset */
+
+body {
+	direction: rtl;
+}
+
 body,div,dl,dt,dd,ul,ol,li,pre,form,fieldset,input,textarea,p,blockquote,th,td {
     margin: 0;
     padding: 0;
@@ -90,7 +95,7 @@ body{
 
 /* wrapper setup */
 div.rapidxwpr{
-    margin: auto;
+    margin:auto;
     width: 960px;
 }
 
@@ -126,7 +131,7 @@ div#logo span{
 
 /* main body setup */
 div#middle{
-    width: auto;
+    width:auto;
     margin: 0px;
     clear: both;
     background: #FFF;
@@ -176,7 +181,7 @@ div#equalright{
 
 /* content column */
 div#main{
-    width: auto;
+    width:auto;
     margin: 0px;
     padding: 15px 29px;
 }
@@ -190,7 +195,7 @@ div#main .withoutright{
 }
 
 div#content{
-    width: auto;
+    width:auto;
 }
 
 div#main .withright div#content{
@@ -205,7 +210,7 @@ div#main .withoutright div#content{
 
 /* footer */
 div#footer{
-    width: auto;
+    width:auto;
     clear: both;
     color: #fff;
     background-color: #A8A8A8;
@@ -242,7 +247,7 @@ div#underfooter{
 div#searchbox{
     position: absolute;
     top: 0px;
-    left: 0px;
+    left: 0px; right:auto;
     background: #BEBEBE;
     border: #9F9F9F 2px solid;
     border-top: 0;
@@ -316,13 +321,16 @@ div.search-form input.searchbtn{
 /* submit incident */
 div.submit-incident{
     margin: 80px 0 0 0;
-    position:absolute;
-    top:0; left:0;
+    /*position:absolute;*/
+	position: relative;	
+    top:0; left:0; right:auto;
     width: 300px;
+	float: left;	
 }
 
 div.submit-incident a, div.submit-incident a:hover{
-    padding: 8px 35px 8px 10px;
+    padding: 8px 10px 8px 35px;
+/*    padding: 8px 35px 8px 10px;*/
     background-color: #368C00;
     background-image: url(../images/submit-incident.png);
     background-position:10px 8px;
@@ -353,6 +361,7 @@ div#mainmenu li{
     float: right;
     display: block;
     margin-left: 15px;
+	margin-right:auto;
 }
 
 div#mainmenu a{
@@ -393,6 +402,7 @@ div.filters li{
     float: right;
     display: block;
     margin-left: 10px;
+	margin-right:auto;
 }
 
 div.filters ul li a{
@@ -411,6 +421,7 @@ div.filters ul li a:hover, div.filters ul li a.active{
 a.share{
     float: right;
     border-left: 1px solid #999;
+    border-right: none;
     margin-top:7px;
     padding:5px 5px 5px 25px;
     background: url(../images/share.jpg) no-repeat center;
@@ -463,6 +474,7 @@ div.slider-holder {
     margin-top:15px;
     width:554px;
     padding-right: 11px;
+    padding-left:0;
 }
 
 div.slider-holder label{
@@ -487,6 +499,7 @@ div.cat-filters span{
     font-weight:normal;
     font-size:90%;
     margin-right:5px;
+    margin-left:auto;
     color:#666;
     letter-spacing:2px;
 }
@@ -540,6 +553,8 @@ div.additional-content{
 
 div.additional-content ol {
     margin-right: 2em;
+    margin-left:auto;
+	
 }
 
 /* content blocks */
@@ -561,7 +576,8 @@ ul.content-column li {
     display: inline;
 }
 div.content-block {
-    margin-left: 15px; /*Creates the 10px gap between each column*/
+    margin-left: 15px; /*Creates the 10px gap between each column*/	
+	margin-right:auto;	
     padding: 15px;
     background-color: #FFFFFF;
 }
@@ -582,7 +598,8 @@ div.content-block-left{
     background: #FFFFFF;
     width: 427px;
     float: right;
-    margin-left: 15px;
+    margin-left: 15px;	
+	margin-right:auto;	
 }
 
 div.content-block-left h5 span {
@@ -628,6 +645,7 @@ div.footermenu ul li a{
 div.footermenu ul li a.item1{
     border: none;
     padding-right: 0;
+	padding-left:0;		
 }
 
 div.footermenu ul li a:hover{
@@ -645,8 +663,9 @@ div.footer-credits{
 
 /* Reports */
 
-#main .left-col { float:right; width:520px; margin-left:20px }
+#main .left-col { float:right; width:520px; margin-left:20px; margin-right:auto;}
 #main .right-col { float:left;width:350px; }
+
 
 div.report-details{
     width: 300px;
@@ -704,7 +723,7 @@ div.report-media { padding:10px 0; border-bottom:1px dotted #C0C2B8;; }
 #report-images { } 
 #report-video { padding:10px 0 0 0; } 
 #report-video ol { overflow:auto; }
-#report-video ol li { float:right; display:list-item; list-style-position:inside; margin-left:10px; }
+#report-video ol li { float:right; display:list-item; list-style-position:inside; margin-left:10px; margin-right:auto;}
 
 div.report-description-text {
     padding:10px 0;
@@ -978,6 +997,7 @@ div.incident-notation ul li{
     list-style: none;
     float: right;
     margin-right: 20px;
+    margin-left:auto;	
     color: #999966;
     text-transform: uppercase;
     font-size: 10px;
@@ -1006,12 +1026,14 @@ div.incident-notation ul li{
     float:right;
     height:16px;
     margin-left: 8px;
+	margin-right:auto;	
     width:16px;
     border:1px solid white;
 }
 
 .category-title {
     padding-right: 0;
+	padding-left:0;		
 }
 
 
@@ -1024,7 +1046,7 @@ div.incident-notation ul li{
     width: 0;
     height: 0;
     overflow: hidden;
-    right: -999999999px;
+    right: -999999999px; left:auto;
 }
 .ui-slider .ui-state-active .ui-slider-tooltip, .ui-slider .ui-state-focus .ui-slider-tooltip, .ui-slider .ui-state-hover .ui-slider-tooltip {
     display: block;
@@ -1034,7 +1056,7 @@ div.incident-notation ul li{
     padding: .3em .2em .4em;
     font-size: .9em;
     width: 8em;
-    margin-right: -3.7em;
+    margin-right: -3.7em;	margin-left:auto;	
 }
 .ui-slider .ui-slider-tooltip .ui-tooltip-pointer-down, .ui-slider .ui-slider-tooltip .ui-tooltip-pointer-down-inner {
     position: absolute; 
@@ -1049,17 +1071,19 @@ div.incident-notation ul li{
     border-left: 7px dashed transparent;
     border-top-width: 8px;
     bottom:    -8px;
-    left: auto;
+    left:auto;
     right: 50%;
     margin-right: -7px;
+    margin-left:auto;	
 }
 .ui-slider .ui-slider-tooltip .ui-tooltip-pointer-down-inner {
     border-right: 6px dashed transparent; 
     border-left: 6px dashed transparent;
     border-top: 7px solid #fff;
-    bottom:    auto;
+    bottom:   auto;
     top: -9px;
     right: -6px;
+	left:auto;
 }
 .ui-slider a {
     text-decoration: none;
@@ -1103,7 +1127,7 @@ div.incident-notation ul li{
 }
 .ui-slider span.ui-slider-tic {
     position: absolute;
-    right: 0;
+    right: 0; left:auto;
     height: .8em;
     top: -1.3em;
 }
@@ -1122,7 +1146,7 @@ div.incident-notation ul li{
     float:left;
     border:1px solid #ccc;
     background-color:#eee;
-    padding:3px 15px 3px 6px;
+    padding:3px 6px 3px 15px;
     color:#666;
     font-weight:bold;
     background-image:url(../images/arrow-play.gif);
@@ -1158,9 +1182,10 @@ form {
 
 label.error {
     margin-right: 10px;
+    margin-left:auto;	
     color:red;
-    font-style: italic;
-    width: auto;
+    /*font-style: italic;*/
+    width:auto;
     display: block;
 }
 .text {
@@ -1235,10 +1260,10 @@ td.w-03 { border-bottom:1px dotted #E8E4DB; text-transform:capitalize; }
 .report_row { margin:0 0 15px 0; clear:both; }
 .report_row h4 { margin:0 0 5px 0; padding:0; font-size:120%; font-weight:bold; }
 .report_row h4 .example{ font-weight: normal; font-size: 10px; line-height: 12px; color: #a1a1a1; }
-.report_row .date-box{ float:right; margin-left:10px; }
+.report_row .date-box{ float:right; margin-left:10px; margin-right:auto;}
 .report_row .date-box img{ padding:0 5px 0 5px; }
 .report_row .time{ float:right; }
-.report_row .optional-info{ float:right; margin-left:10px; }
+.report_row .optional-info{ float:right; margin-left:10px; margin-right:auto;}
 
 .report_category { clear:both; overflow:hidden; font-size:90%; }
 .report_category ul{ width:50%; float:right; margin:0; padding:0 0 11px; }
@@ -1246,8 +1271,8 @@ td.w-03 { border-bottom:1px dotted #E8E4DB; text-transform:capitalize; }
 .report_category ul li label{ color:#555; }
 
 /*Categories Tree*/
-.report_category ul ul { width: auto; float: none; }
-.report_category ul li.sub_category { padding-right: 47px; }
+.report_category ul ul { width:auto; float: none; }
+.report_category ul li.sub_category { padding-right: 47px; 	padding-left:0;	}
 .report_category ul li.sub_category_last { background-position: 16px -1766px; }
 .report_category ul li input.check-box { margin: 0 0 0 3px; }
 .report_category ul li.hover,
@@ -1276,7 +1301,7 @@ ul.treeview li.lastExpandable { width:155px; }
     overflow:hidden;
 }
 .report_rating{ margin:15px 10px 0 0; font-size:90%; }
-.report_rating div{ float:right; margin-left:3px; }
+.report_rating div{ float:right; margin-left:3px; margin-right:auto;}
 
 .rating_value{
     height:14px;
@@ -1290,7 +1315,7 @@ ul.treeview li.lastExpandable { width:155px; }
     margin:0 10px 0 0;
 }
 
-table.rating-table td { padding-left:3px; }
+table.rating-table td { padding-left:3px; 	padding-right:0;}
 span.dots {
     width:17px;
     text-align:center;
@@ -1317,7 +1342,8 @@ a.rem { background:url(../images/icon-minus.gif) no-repeat;}
     position:relative;
 }
 .report-find-location {
-    margin-left:1px;
+    margin-left:1px;	
+	margin-right:auto;	
     padding:10px 9px 9px 9px;
     background-color:#eee;
     border:1px solid #ccc;
@@ -1347,7 +1373,8 @@ a.show-more {
     padding:1px 18px 0 0;
     background:url(../images/icon-plus.gif) no-repeat 0 2px;
     float:left;
-    margin-left:23px;
+    margin-left:23px;	
+	margin-right:auto;	
 }
 
 /*---big-block---*/
@@ -1372,7 +1399,8 @@ a.show-more {
 }
 .report_col1, .report_col2, .report_col3, .report_col4, .report_col5 {
     float:right;
-    padding-left:15px;
+    padding-left:15px;	
+	padding-right:0;
 }
 .report_col1{
     width:85px;
@@ -1566,7 +1594,7 @@ ul.pager li a.active {background:#f2f7fa;}
     display:none;
     position: relative;
     top: -350px;
-    right: 25px;
+    right: 25px; left:auto;
     border: 5px solid black;
     background: #bbb;
     width: 600px;
@@ -1637,7 +1665,7 @@ ul.pager li a.active {background:#f2f7fa;}
 .search_date{
     font-size:12px;
     color:#006600;
-    font-style: italic;
+    /*font-style: italic;*/
     margin-top:3px;
 }
 /*-gallery-*/
@@ -1818,6 +1846,8 @@ div.green-box h3, div.red-box h3{
 div.green-box ul, div.red-box ul{
     margin-right:2em;
     padding-right:2em;
+	padding-left:0;	
+    margin-left:auto;	
 }
 
 /*--Alerts Messages--*/
@@ -1925,11 +1955,13 @@ span.required {
 #geometryLabeler label {
     font-weight:bold;
     color:#fff;
-    margin-left:5px;
+    margin-left:5px;	
+	margin-right:auto;
 }
 #geometryLabeler .lbl_text{
     width:80px;
-    margin-left:15px;
+    margin-left:15px;	
+	margin-right:auto;
 }
 #geometryLabeler .lbl_text2{
     width:180px;
@@ -1946,7 +1978,7 @@ span.required {
     z-index:5001;
     position:absolute;
     top:2px;
-    left:0;
+    left:0; right:auto;
     width:18px;
     height:18px;
     background: url("../img/openlayers/layer-switcher-minimize.png") no-repeat;
@@ -1961,8 +1993,8 @@ version: 1
 */
 
 /* Reports/Filters Layout */
-#reports-box { float:right; width:600px; }
-#filters-box { float:right; width:280px; margin-right:20px; }
+#reports-box { float:left; width:600px; }
+#filters-box { float:left; width:280px; margin-left:20px; margin-right:auto;}
 
 
 /* Report Box Navigation Controls (pagination, view/map toggle...etc) */
@@ -1972,7 +2004,7 @@ version: 1
 .rb_nav-controls td.last { border:none; padding:0 18px 0 0; }
     
 /* Link Toggle */ 
-.rb_nav-controls .link-toggle { margin-left:5px; }
+.rb_nav-controls .link-toggle { margin-left:5px; margin-right:auto;}
 ul.link-toggle { display:block; }
 ul.link-toggle li { display:inline-block; }
 ul.link-toggle li a { 
@@ -1993,13 +2025,13 @@ ul.lt-icons-only li a { overflow:hidden; text-indent:-23434px; }
 ul.link-toggle li.active a,
 ul.link-toggle li a:hover { color:#fff; border:1px solid #8a8a8a; text-decoration:none; }
             
-ul.link-toggle li a.list { background:transparent url("../images/icon_sprite-2.png") 2px -29px no-repeat; ; }
+ul.link-toggle li a.list { background:transparent url("../images/icon_sprite-2.png") 28px -29px no-repeat; ; }
 ul.link-toggle li.active a.list,
-ul.link-toggle li a:hover.list { background:#8a8a8a url("../images/icon_sprite-2.png") 2px -3px no-repeat}
+ul.link-toggle li a:hover.list { background:#8a8a8a url("../images/icon_sprite-2.png") 28px -3px no-repeat}
             
-ul.link-toggle li a.map { background:transparent url("../images/icon_sprite-2.png") 2px -80px no-repeat; }
+ul.link-toggle li a.map { background:transparent url("../images/icon_sprite-2.png") 29px -80px no-repeat; }
 ul.link-toggle li.active a.map,
-ul.link-toggle li a:hover.map { background:#8a8a8a url("../images/icon_sprite-2.png") 2px -54px no-repeat; }
+ul.link-toggle li a:hover.map { background:#8a8a8a url("../images/icon_sprite-2.png") 28px -54px no-repeat; }
             
 /* Icons only */    
 ul.link-toggle li a.prev,
@@ -2033,7 +2065,7 @@ a.ic-time {
     font-size:12px; 
     font-weight:normal; 
     display:inline-block; 
-    padding:3px 20px 3px 0; 
+    padding:3px 0px 3px 20px; /*3px 20px 3px 0; */
     background:transparent url("../../default/images/icon_sprite.png") no-repeat scroll -3px -133px;
 }
     
@@ -2059,7 +2091,7 @@ a.ic-time {
 #tooltip-box .t-arrow { 
     position:absolute; 
     top:-13px; 
-    left:118px; 
+    left:118px; right:auto;
     background:transparent url("../images/icon_sprite-2.png") 0 -181px no-repeat; 
     width:26px;
     height:14px; 
@@ -2136,7 +2168,7 @@ span.r_cat-desc { display:none; }
     display:none; 
     position:absolute; 
     top:0px;
-    right:-10px;
+    right:-10px; left:auto;
     color:#FFFFFF;
     font-size:9px;
     font-weight:normal;
@@ -2157,10 +2189,11 @@ span.r_cat-desc { display:none; }
 p.r_date {
     position:absolute;
     top:0px;
-    left:0px;
+    left:0px; right:auto;
     padding:3px 23px 4px 5px; 
-    background:#e3e3e3 url(../../default/images/icon_sprite.png) 0px -133px no-repeat;
+    background:#e3e3e3 url(../../default/images/icon_sprite.png) 110px -133px no-repeat;
     color:#908b88;
+	float:left;
 }
         
 div.r_description { margin-bottom:5px; width:450px; }
@@ -2187,12 +2220,12 @@ a.btn-show { display:none; }
 #filters-box h2 { color:#494949; }
 
 /* jquery UI theme overrides for accordion */
-#accordion .ui-accordion-header .ui-icon { left:.5em; }
+#accordion .ui-accordion-header .ui-icon { left:.5em; right:auto;}
 .ui-accordion .ui-accordion-header a { padding:0.5em 0.5em 0.5em 2.2em; color:#797979; font-weight:bold; }
 #accordion .ui-accordion-header .small-link-button { 
     position:absolute; 
     top:0;
-    left:0;
+    left:0; right:auto;
     display:inline-block;
     font-size:.9em;
     font-weight:normal;
@@ -2233,14 +2266,15 @@ ul.filter-list li a.selected {
     border-radius: 3px; 
 }
 
-ul.filter-list li a span.item-swatch { display:block; height:16px; width:16px; margin-left: 8px; border:1px solid white; float:right; overflow: hidden; }
-ul.filter-list li a span.item-icon { display:block; float:right; margin-left:8px; height:16px; width:16px; }
+ul.filter-list li a span.item-swatch { display:block; height:16px; width:16px; margin-left: 8px; margin-right:auto; border:1px solid white; float:right; overflow: hidden; }
+ul.filter-list li a span.item-icon { display:block; float:right; margin-left:8px; margin-right:auto; height:16px; width:16px; }
 ul.filter-list li a span.item-title { display:block; padding:0 26px 0 40px; }
 ul.filter-list li a span.item-count {
     display:block; 
     padding:1px 3px; 
     position:absolute; 
     left:0;
+    right:auto;
     top:4px;
     background:#dbdbdb;
     color:#636363;
@@ -2253,7 +2287,7 @@ ul.filter-list li li { position:relative; }
 
 ul.filter-list li a.btn-cancel { 
     position:absolute; 
-    right:0; 
+    right:0; left:auto; 
     overflow:hidden; 
     height:25px;
     width:20px; 
@@ -2263,7 +2297,7 @@ ul.filter-list li a.btn-cancel {
 }
 
 /* For child categories because nested UL/LIs are difficult in this case */
-li.report-listing-category-child { padding-right:20px; }
+li.report-listing-category-child { padding-right:20px; padding-left:0;}
 
 /* Filter Controls */    
 #filter-controls    { position:relative; padding:15px; margin-top:-2px; }
@@ -2271,7 +2305,7 @@ li.report-listing-category-child { padding-right:20px; }
 
 a.filter-button    { 
     position:absolute;  
-    left:0px;
+    left:0px; right:auto;
     top:11px; 
     color:#fff;
     display:inline-block;
@@ -2485,20 +2519,20 @@ div#main {
 }
 div#searchbox {
   position: absolute;
-  left: 0;
+  left: 0; right:auto;
   border: none;
   background: transparent;
-  width: auto;
+  width:auto;
 }
 div#loggedin_user_action {
   float: right;
-  width: auto;
+  width:auto;
 }
 div#loggedin_user_action a, div#loggedin_user_action a:visited {
   font-weight: bold;
   padding: 6px;
   margin-top: 2px;
-  width: auto;
+  width:auto;
   display: block;
   float: right;
 }
@@ -2509,8 +2543,8 @@ div.search-form input.text:focus {
   border: 1px solid;
 }
 div.search-form input.searchbtn {
-  width: auto;
-  height: auto;
+  width:auto;
+  height:auto;
   border: 0;
   text-indent: 0;
   color: #FFFFFF;
@@ -2518,6 +2552,7 @@ div.search-form input.searchbtn {
   font-size: 12px;
   background-image:none;
   margin-right: 10px;
+  margin-left:auto;  
   line-height: 17px;
   padding: 2px 5px 3px;
   text-transform: uppercase;
@@ -2529,6 +2564,8 @@ div.search-form input.searchbtn {
 div#logo {
   background-color: transparent;
   padding-right: 0;
+  padding-left:0;  
+  
 }
 div#logo h1 a {
   color: #222222;
@@ -2536,8 +2573,8 @@ div#logo h1 a {
   font-size: 48px;
 }
 div#logo span {
-  font-style: italic;
-  color: #999;
+  /*font-style: italic;*/
+  /*color: #999;*/  /*the color is too light*/
   font-family: 'Georgia', serif;
 }
 /* submit report button (in the site header and on the "submit a report" page) */
