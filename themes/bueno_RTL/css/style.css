@@ -499,7 +499,7 @@ div.cat-filters span{
     font-weight:normal;
     font-size:90%;
     margin-right:5px;
-    margin-left:auto;
+    margin-left:10px;
     color:#666;
     letter-spacing:2px;
 }
@@ -1371,7 +1371,7 @@ a.show-more {
     text-decoration:underline;
     font-size:10px;
     padding:1px 18px 0 0;
-    background:url(../images/icon-plus.gif) no-repeat 0 2px;
+    background:url(../images/icon-plus.gif) no-repeat 55px 2px;
     float:left;
     margin-left:23px;	
 	margin-right:auto;	
