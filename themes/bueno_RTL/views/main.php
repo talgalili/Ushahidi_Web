@@ -23,7 +23,7 @@
 				if($default_map_all_icon != NULL) {
 					$all_cat_image = html::image(array(
 						'src'=>$default_map_all_icon,
-						'style'=>'float:left;padding-right:5px;'
+						'style'=>'float:right;padding-left:5px;'
 					));
 					$color_css = '';
 				}
@@ -39,7 +39,7 @@
 						if($category_info[2] != NULL) {
 							$category_image = html::image(array(
 								'src'=>$category_image,
-								'style'=>'float:left;padding-right:5px;'
+								'style'=>'float:right;padding-left:5px;'
 								));
 							$color_css = '';
 						}

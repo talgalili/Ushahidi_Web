@@ -39,7 +39,7 @@
 						if($category_info[2] != NULL) {
 							$category_image = html::image(array(
 								'src'=>$category_image,
-								'style'=>'float:left;padding-right:5px;'
+								'style'=>'float:right;padding-left:5px;'
 								));
 							$color_css = '';
 						}
@@ -58,7 +58,7 @@
                                                             if($child_info[2] != NULL) {
                                                                     $child_image = html::image(array(
                                                                             'src'=>$child_image,
-                                                                            'style'=>'float:left;padding-right:5px;'
+                                                                            'style'=>'float:right;padding-left:5px;'
                                                                             ));
                                                                     $color_css = '';
                                                             }
