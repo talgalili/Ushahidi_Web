@@ -691,8 +691,8 @@ div.report-details{
 .report_detail .r_verified { background:#368C00; }
 .report_detail .r_unverified { background:#A60003; }
 
-.report_detail .r_location { background: transparent url(../images/icon_sprite.png) -5px -163px no-repeat; }
-.report_detail .r_date { background: transparent url(../images/icon_sprite.png) -4px -133px no-repeat; }
+.report_detail .r_location { background: #fff; }/*transparent url(../images/icon_sprite.png) -5px -163px no-repeat; }*/
+.report_detail .r_date { background: transparent url(../images/icon_sprite.png) 141px -130px no-repeat; }
 
 .report-when-where { color:#908B88; margin-bottom:10px; }
 .report-when-where span { padding:3px 18px 3px 5px;  } 
@@ -829,7 +829,7 @@ ul.map-toggles { overflow:auto; }
 ul.map-toggles li { display:none; float:left; list-style-type: none; }
 
 ul.map-toggles li a, 
-ul.map-toggles li a:active { display:inline-block; padding:3px 17px 3px 5px; outline:none; }
+ul.map-toggles li a:active { display:inline-block; padding:3px 17px 8px 19px; outline:none; }
 
 a.wider-map { background:transparent url(../images/icon_sprite.png) -4px -202px no-repeat; }
 a.taller-map { background:transparent url(../images/icon_sprite.png) -4px -221px no-repeat; }
@@ -847,7 +847,7 @@ div.report-additional-reports h4 {
 }
 
 div.report-additional-reports h5 { font-size:12px; margin:4px 0 2px 120px; }
-div.report-additional-reports .r_date { font-size:10px; background:#f2f2f2 url(../images/icon_sprite.png) 0px -133px no-repeat; }
+div.report-additional-reports .r_date { font-size:10px; background:#F2F2F2 url(../images/icon_sprite.png) 96px -134px no-repeat; }
 div.report-additional-reports .r_location { font-size:10px; padding:3px 18px 3px 0; color:#828784; }
 div.report-details ul.details{ list-style: none; }
 
@@ -2191,7 +2191,7 @@ p.r_date {
     top:0px;
     left:0px; right:auto;
     padding:3px 23px 4px 5px; 
-    background:#e3e3e3 url(../../default/images/icon_sprite.png) 110px -133px no-repeat;
+    background:#e3e3e3 url(../../default/images/icon_sprite.png) 150px -130px no-repeat;
     color:#908b88;
 	float:left;
 }
